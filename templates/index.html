@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="hero">
+    <h1>Print Anything, <span class="gradient-text">Anywhere.</span></h1>
+    <p>Upload your document, get a token, and skip the queue at the print shop.</p>
+</div>
+
+<div class="upload-container glass-panel" id="upload-panel">
+    <form id="uploadForm" enctype="multipart/form-data">
+        
+        <div class="file-drop-area" id="dropArea">
+            <i data-lucide="upload-cloud" class="upload-icon"></i>
+            <p>Drag & Drop your file here</p>
+            <span>or</span>
+            <label for="document" class="file-btn">Browse Files</label>
+            <input type="file" id="document" name="document" required hidden>
+            <div id="fileNameDisplay" class="file-name-display"></div>
+        </div>
+
+        <div class="options-grid">
+            <div class="form-group">
+                <label for="copies">Copies</label>
+                <input type="number" id="copies" name="copies" value="1" min="1" max="100">
+            </div>
+            
+            <div class="form-group">
+                <label for="color">Color Profile</label>
+                <select id="color" name="color">
+                    <option value="B&W">Black & White</option>
+                    <option value="Color">Color</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="page_range">Pages to Print</label>
+                <input type="text" id="page_range" name="page_range" placeholder="e.g. 1-5, 8, 11-13" value="All">
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="uploadBtn">
+            <span class="btn-text">Generate Token</span>
+            <i data-lucide="arrow-right"></i>
+        </button>
+    </form>
+</div>
+
+<div class="success-container glass-panel hidden" id="success-panel">
+    <div class="success-header">
+        <div class="success-icon-wrapper">
+            <i data-lucide="check-circle" class="success-icon"></i>
+        </div>
+        <h2>Upload Successful!</h2>
+        <p>Your document is ready to be printed.</p>
+    </div>
+
+    <div class="token-display">
+        <span class="token-label">YOUR SECURE TOKEN</span>
+        <h1 class="token-code" id="tokenDisplay">XYZ-123</h1>
+    </div>
+
+    <div class="qr-container">
+        <img id="qrDisplay" src="" alt="QR Code">
+        <p>Show this code to the vendor</p>
+    </div>
+
+    <div class="status-tracker" id="statusTracker">
+        <h3>Live Status</h3>
+        <div class="status-badge pending" id="liveStatus">Pending</div>
+        <div class="loader hidden" id="statusLoader"></div>
+    </div>
+    
+    <button class="reset-btn" onclick="location.reload()">Upload another document</button>
+</div>
+
+{% endblock %}

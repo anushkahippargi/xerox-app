@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>Vendor Dashboard</h2>
+    <div class="search-bar">
+        <i data-lucide="search"></i>
+        <input type="text" id="tokenSearch" placeholder="Search by Token..." onkeyup="filterJobs()">
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    {% for job in jobs %}
+    <div class="job-card glass-panel" data-token="{{ job.token }}">
+        <div class="job-card-header">
+            <span class="job-token">{{ job.token }}</span>
+            <span class="status-badge {{ job.status|lower }}">{{ job.status }}</span>
+        </div>
+        
+        <div class="job-details">
+            <div class="detail-row">
+                <i data-lucide="file-text"></i>
+                <span title="{{ job.original_filename }}">{{ job.original_filename | truncate(25) }}</span>
+            </div>
+            <div class="detail-row">
+                <i data-lucide="copy"></i>
+                <span>{{ job.copies }} Copies</span>
+            </div>
+            <div class="detail-row">
+                <i data-lucide="palette"></i>
+                <span>{{ job.color }}</span>
+            </div>
+            <div class="detail-row">
+                <i data-lucide="hash"></i>
+                <span>Pages: {{ job.page_range }}</span>
+            </div>
+            <div class="detail-row">
+                <i data-lucide="clock"></i>
+                <span class="time-ago" data-time="{{ job.created_at.isoformat() }}Z">
+                    {{ job.created_at.strftime('%Y-%m-%d %H:%M') }}
+                </span>
+            </div>
+        </div>
+
+        <div class="job-actions">
+            <a href="/file/{{ job.token }}" class="action-btn download-btn">
+                <i data-lucide="download"></i> Download
+            </a>
+            
+            <select class="status-select" onchange="updateJobStatus('{{ job.token }}', this.value)">
+                <option value="Pending" {% if job.status == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="Printing" {% if job.status == 'Printing' %}selected{% endif %}>Printing</option>
+                <option value="Completed" {% if job.status == 'Completed' %}selected{% endif %}>Completed</option>
+            </select>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state glass-panel">
+        <i data-lucide="inbox"></i>
+        <h3>No Print Jobs Found</h3>
+        <p>Looks like the queue is empty right now.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+function updateJobStatus(token, newStatus) {
+    fetch(`/vendor/update_status/${token}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            // Reload page to reflect changes gracefully
+            window.location.reload();
+        } else {
+            alert('Failed to update status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+
+function filterJobs() {
+    let input = document.getElementById('tokenSearch').value.toUpperCase();
+    let cards = document.querySelectorAll('.job-card');
+    cards.forEach(card => {
+        let token = card.getAttribute('data-token').toUpperCase();
+        if (token.indexOf(input) > -1) {
+            card.style.display = "";
+        } else {
+            card.style.display = "none";
+        }
+    });
+}
+</script>
+{% endblock %}
